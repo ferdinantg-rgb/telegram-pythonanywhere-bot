@@ -12,6 +12,7 @@ def make_message(text="hello", user_id=123, chat_id=456, chat_type="private"):
 
 
 HANDLER_PATCHES = {
+    
     "bot.handlers.should_respond": True,
     "bot.handlers.is_rate_limited": False,
     "bot.handlers.BOT_INFO": MagicMock(id=42, username="testbot"),
