@@ -78,7 +78,7 @@ def cmd_help(message):
     Generate a help message for an AI learning assistant.
 
     Include:
-    - List of commands: /start, /help, /reset, /about, /joke, /roll
+    - List of commands: /start, /help, /reset, /about, /joke, /roll(1/6), /compliment, /fact, /quote, /coin(give red/green), /roast <name>
     - Explain each briefly
     - Encourage learning and asking questions
     - Keep it short and clearly
@@ -150,6 +150,57 @@ if HF_SPACE_ID:
         else:
             bot.send_message(message.chat.id, "Switched to Main Provider.")
 
+@bot.message_handler(commands=["remember"], func=is_allowed)
+def cmd_remember(message):
+ note = message.text.split(maxsplit=1)[1] if " " in message.text else ""
+ store.set(f"note:{message.from_user.id}", note)
+ bot.send_message(message.chat.id, "Saved!")
+
+@bot.message_handler(commands=["recall"], func=is_allowed) 
+def cmd_recall(message): 
+    note = store.get(f"note:{message.from_user.id}") 
+    if note: 
+        bot.send_message( message.chat.id, f"Your note: {note}" ) 
+    else: 
+        bot.send_message( message.chat.id, "You don't have any saved notes." )
+ 
+
+@bot.message_handler(commands=["joke"], func=is_allowed)
+def cmd_joke(message):
+ reply = ask_ai(message.from_user.id, "Tell one short, clean programming joke.")
+ bot.send_message(message.chat.id, reply)
+
+@bot.message_handler(commands=["compliment"], func=is_allowed)
+def cmd_compliment(message):
+ reply = ask_ai(message.from_user.id, "Tell one short, clean compliment.")
+ bot.send_message(message.chat.id, reply)
+
+@bot.message_handler(commands=["fact"], func=is_allowed)
+def cmd_fact(message):
+ reply = ask_ai(message.from_user.id, "Tell one short fact about programing.")
+ bot.send_message(message.chat.id, reply)
+
+@bot.message_handler(commands=["quote"], func=is_allowed)
+def cmd_quote(message):
+ reply = ask_ai(message.from_user.id, "Tell one short motivation line.")
+ bot.send_message(message.chat.id, reply)
+
+@bot.message_handler(commands=["coin"], func=is_allowed)
+def cmd_coin(message):
+  from random import randint as r
+  num=r(0,1)
+  if num==0:
+    res="green"
+  else:
+    res="red"
+  bot.send_message(message.chat.id, f"It came up {res}")
+
+@bot.message_handler(commands=["roast"], func=is_allowed)
+def cmd_roast(message):
+  name = message.text.split(maxsplit=1)[1] if " " in message.text else "you"
+  reply = ask_ai(message.from_user.id, f"Write a short, playful, friendly roast of {name}.")
+  bot.send_message(message.chat.id, reply)
+  
 
 @bot.message_handler(content_types=["text"], func=is_allowed)
 def handle_message(message):
