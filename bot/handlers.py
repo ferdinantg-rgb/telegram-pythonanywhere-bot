@@ -75,14 +75,30 @@ def roll(message):
 @bot.message_handler(commands=["help"], func=is_allowed)
 def cmd_help(message):
     prompt = """
-    Generate a help message for an AI learning assistant.
+You are writing the /help message for a Telegram bot.
 
-    Include:
-    - List of commands: /start, /help, /reset, /about, /joke, /roll(1/6), /compliment, /fact, /quote, /coin(give red/green), /roast <name>
-    - Explain each briefly
-    - Encourage learning and asking questions
-    - Keep it short and clearly
-    """
+Rules:
+- Include EVERY command below. Do NOT omit any.
+- Use the commands exactly as written.
+- Give each command a one-line description.
+- Do not add or remove commands.
+- Keep the response under 200 words.
+
+Commands:
+- /start
+- /help
+- /reset
+- /about
+- /joke
+- /roll (1-6)
+- /compliment
+- /fact
+- /quote
+- /coin (red/green)
+- /roast <name>
+
+Finish with one sentence encouraging users to ask questions.
+"""
 
     response = ask_ai(message.from_user.id, prompt)
 
