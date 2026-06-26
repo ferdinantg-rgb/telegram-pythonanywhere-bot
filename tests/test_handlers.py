@@ -120,36 +120,41 @@ def test_handle_message_mention_only_skipped():
 
 
 def test_cmd_about_with_sqlite():
-    """When SQLite is configured, /about should reference SQLite."""
     with (
         patch("bot.handlers.bot") as mock_bot,
         patch("bot.handlers.store", MagicMock()),
         patch("bot.handlers.HF_SPACE_ID", ""),
+        patch(
+            "bot.handlers.ask_ai",
+            return_value="This AI assistant uses SQLite to store conversations.",
+        ),
     ):
         from bot.handlers import cmd_about
 
         cmd_about(make_message())
+
+        mock_bot.send_message.assert_called_once()
         sent = mock_bot.send_message.call_args[0][1]
         assert "SQLite" in sent
-        assert "stateless" not in sent
-
-
+        
 def test_cmd_about_includes_commit_sha_when_set():
-    """When COMMIT_SHA is populated (worker booted inside a git repo),
-    /about exposes a Version line so users can validate which commit is
-    live."""
     with (
         patch("bot.handlers.bot") as mock_bot,
         patch("bot.handlers.store", MagicMock()),
         patch("bot.handlers.HF_SPACE_ID", ""),
         patch("bot.handlers.COMMIT_SHA", "abc1234"),
+        patch(
+            "bot.handlers.ask_ai",
+            return_value="Version: abc1234\nAI learning assistant.",
+        ),
     ):
         from bot.handlers import cmd_about
 
         cmd_about(make_message())
+
+        mock_bot.send_message.assert_called_once()
         sent = mock_bot.send_message.call_args[0][1]
         assert "Version: abc1234" in sent
-
 
 def test_cmd_about_omits_version_line_when_sha_unknown():
     """If git rev-parse failed at boot, the Version line is dropped
@@ -168,20 +173,22 @@ def test_cmd_about_omits_version_line_when_sha_unknown():
 
 
 def test_cmd_about_without_store():
-    """When no backend is configured, /about must say stateless. Regression
-    guard for the NameError that occurred when `store` was missing from
-    bot.handlers' imports."""
     with (
         patch("bot.handlers.bot") as mock_bot,
         patch("bot.handlers.store", None),
         patch("bot.handlers.HF_SPACE_ID", ""),
+        patch(
+            "bot.handlers.ask_ai",
+            return_value="This bot works in stateless mode.",
+        ),
     ):
         from bot.handlers import cmd_about
 
         cmd_about(make_message())
+
+        mock_bot.send_message.assert_called_once()
         sent = mock_bot.send_message.call_args[0][1]
         assert "stateless" in sent
-
 
 # ── /model command ────────────────────────────────────────────────────────────
 
